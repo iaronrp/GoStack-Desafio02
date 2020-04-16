@@ -11,29 +11,38 @@ function App() {
     api.get('repositories').then(response => {
       setRepositories(response.data);
     })
-  },[repositories])
+  },[])
 
   async function handleAddRepository() {
-    await api.post('/repositories', {
+    const repository = await api.post('/repositories', {
       "title": `Desafio bootCamp ${Date.now()}`,
       "url": "https://iaron.com",
       "techs": ["Vue", "Angular"]
     });
+
+    setRepositories([...repositories, repository.data])
   }
 
   async function handleRemoveRepository(id) {
-    await api.delete(`/repositories/${id}`);   
+    try {
+      await api.delete(`/repositories/${id}`);
+
+      setRepositories(repositories.filter(repository => repository.id !== id))
+    } catch (error) {
+      alert('Erro ao deletar.')
+    }
+       
   }
 
   return (
     <div>
       <ul data-testid="repository-list">
         {repositories.map(repository => (
-          <li key={repository.id}>
-              {repository.title}
-            <button onClick={() => handleRemoveRepository(repository.id)}>
-              Remover
-            </button>
+           <li key={repository.id}>
+           {repository.title}
+         <button onClick={() => handleRemoveRepository(repository.id)}>
+            Remover
+         </button>
           </li>
         ))}
       </ul>
